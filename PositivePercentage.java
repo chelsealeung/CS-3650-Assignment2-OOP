@@ -26,7 +26,7 @@ public class PositivePercentage implements SysEntryVisitor{
     }
 
     private static boolean stringContainsItemFromList(String input, String[] items) {
-        return Arrays.stream(items).anyMatch(input::contains);
+        return Arrays.stream(items).anyMatch(input.toLowerCase()::contains);
     }
 
     @Override
