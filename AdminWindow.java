@@ -45,7 +45,7 @@ public class AdminWindow {
         gridpane.add(userIDTextField,0,0);
 
         Button addUser = new Button("Add User");
-        addUser.setMaxWidth(170);
+        addUser.setMaxWidth(120);
         gridpane.add(addUser,1,0);
         addUser.setOnAction(e -> {
             TreeItem<SysEntry> branch = tree.getSelectionModel().getSelectedItem();
@@ -60,7 +60,7 @@ public class AdminWindow {
         gridpane.add(groupIDTextField,0,1);
 
         Button addGroup = new Button("Add Group");
-        addGroup.setMaxWidth(170);
+        addGroup.setMaxWidth(120);
         gridpane.add(addGroup,1,1);
         addGroup.setOnAction(e -> {
             TreeItem<SysEntry> branch = tree.getSelectionModel().getSelectedItem();
@@ -71,7 +71,7 @@ public class AdminWindow {
         });
 
         Button openUserView = new Button("Open User View");
-        openUserView.setMaxWidth(170);
+        openUserView.setMaxWidth(120);
         gridpane.add(openUserView,0,2);
         openUserView.setOnAction(e -> {
             TreeItem<SysEntry> branch = tree.getSelectionModel().getSelectedItem();
@@ -89,12 +89,12 @@ public class AdminWindow {
         TextField displayBox = new TextField();
         displayBox.setPromptText("Message Display Here");
         displayBox.setEditable(false);
-        displayBox.setMinWidth(250);
+        displayBox.setMinWidth(200);
         gridpane.add(displayBox,0,4);
 
         // visitor pattern
-        Button showUser = new Button("Show User Total");
-        showUser.setMaxWidth(170);
+        Button showUser = new Button("User Total");
+        showUser.setMaxWidth(120);
         gridpane.add(showUser,0,5);
         showUser.setOnAction(e -> {
             UserTotal userTotal = new UserTotal();
@@ -103,8 +103,8 @@ public class AdminWindow {
         });
 
         // visitor pattern
-        Button showGroup = new Button("Show Group Total");
-        showGroup.setMaxWidth(170);
+        Button showGroup = new Button("Group Total");
+        showGroup.setMaxWidth(120);
         gridpane.add(showGroup,1,5);
         showGroup.setOnAction(e -> {
             GroupTotal groupTotal = new GroupTotal();
@@ -113,8 +113,8 @@ public class AdminWindow {
         });
 
         // visitor pattern
-        Button showMsg = new Button("Show Messages Total");
-        showMsg.setMaxWidth(170);
+        Button showMsg = new Button("Messages Total");
+        showMsg.setMaxWidth(120);
         gridpane.add(showMsg,0,6);
         showMsg.setOnAction(e -> {
             MessagesTotal messagesTotal = new MessagesTotal();
@@ -123,8 +123,8 @@ public class AdminWindow {
         });
 
         // visitor pattern
-        Button showPos = new Button("Show Positive Percentage");
-        showPos.setMaxWidth(170);
+        Button showPos = new Button("Positive Percentage");
+        showPos.setMaxWidth(120);
         gridpane.add(showPos,1,6);
         showPos.setOnAction(e -> {
             PositivePercentage positivePercentage = new PositivePercentage();
@@ -132,14 +132,42 @@ public class AdminWindow {
             displayBox.setText("Positive Message (integer): " + positivePercentage.getter() + "%");
         });
 
+        /*
+        Assignment 3: add two new buttons
+        visitor pattern
+         */
+        Button checkID = new Button("ID Verification");
+        checkID.setMaxWidth(120);
+        gridpane.add(checkID,0,7);
+        checkID.setOnAction(e -> {
+            ValidID validID = new ValidID();
+            rootGroup.accept(validID);
+            if (validID.getValid()) {
+                displayBox.setText("All IDs are valid");
+            }
+            else {
+                displayBox.setText("Not all IDs are valid");
+            }
+        });
+
+        Button lastUpdate = new Button("Last Updated");
+        lastUpdate.setMaxWidth(120);
+        gridpane.add(lastUpdate,1,7);
+        lastUpdate.setOnAction(e -> {
+            LatestUpdate latestUpdate = new LatestUpdate();
+            rootGroup.accept(latestUpdate);
+            displayBox.setText("Last Updated User: " + latestUpdate.getCurrentLatestUser());
+        });
+
         VBox leftControl = new VBox(tree);        // left side of the scene
         VBox rightControl = new VBox(gridpane);     // right side of the scene
-        rightControl.setMinWidth(450);
+        leftControl.setMaxWidth(180);
         splitPane = new SplitPane(leftControl, rightControl);   // merge left and right together back to the scene
     }
 
     // add user or group under another group
     // composite pattern: user and group implements SysEntry
+    // show dialog when ID is duplicated or contain spaces
     private TreeItem<SysEntry> makeBranch(TreeItem<SysEntry> sysEntryTreeItem, Group rootGroup, String name) {
         alertBox = new Alert(Alert.AlertType.ERROR);
         if (sysEntryTreeItem == null || sysEntryTreeItem.getValue() instanceof User) {
@@ -147,33 +175,33 @@ public class AdminWindow {
             alertBox.showAndWait();
         }
         else if (sysEntryTreeItem.getValue() instanceof Group) {
-            if (isUserButton) {
-                if (rootGroup.containsUserID(name)) {
-                    alertBox.setContentText(name + " is already in the group");
-                    alertBox.showAndWait();
-                }
-                else {
-                    User user = new User(); // create new user
-                    user.setID(name);
-                    ((Group) sysEntryTreeItem.getValue()).setSysEntries(user);  // add new user to group (list)
-                    sysEntryTreeItem.getChildren().add(new TreeItem<>(user));   // tree item group add tree item user (tree)
-                    sysEntryTreeItem.setExpanded(true);
-                    isUserButton = false;
-                }
+            if (rootGroup.containsUserID(name) || rootGroup.containsGroupID(name)) {
+                alertBox.setContentText(name + " is already in the group");
+                alertBox.showAndWait();
+                return sysEntryTreeItem;
             }
-            if (isGroupButton) {
-                if (rootGroup.containsGroupID(name)) {
-                    alertBox.setContentText(name + " is already in the group");
-                    alertBox.showAndWait();
-                }
-                else {
-                    Group group = new Group();  // create new group
-                    group.setID(name);
-                    ((Group) sysEntryTreeItem.getValue()).setSysEntries(group); // add new group to group (list)
-                    sysEntryTreeItem.getChildren().add(new TreeItem<>(group));  // tree item group add tree item group (tree)
-                    sysEntryTreeItem.setExpanded(true);
-                    isGroupButton = false;
-                }
+            if (rootGroup.containsSpace(name)) {
+                alertBox.setContentText(name + " should not contain spaces");
+                alertBox.showAndWait();
+                return sysEntryTreeItem;
+            }
+            if (isUserButton) {
+                User user = new User(); // create new user
+                user.setID(name);
+                user.setCreationTime();
+                ((Group) sysEntryTreeItem.getValue()).setSysEntries(user);  // add new user to group (list)
+                sysEntryTreeItem.getChildren().add(new TreeItem<>(user));   // tree item group add tree item user (tree)
+                sysEntryTreeItem.setExpanded(true);
+                isUserButton = false;
+            }
+            else if (isGroupButton) {
+                Group group = new Group();  // create new group
+                group.setID(name);
+                group.setCreationTime();
+                ((Group) sysEntryTreeItem.getValue()).setSysEntries(group); // add new group to group (list)
+                sysEntryTreeItem.getChildren().add(new TreeItem<>(group));  // tree item group add tree item group (tree)
+                sysEntryTreeItem.setExpanded(true);
+                isGroupButton = false;
             }
         }
         return sysEntryTreeItem;
