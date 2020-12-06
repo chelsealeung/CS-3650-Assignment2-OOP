@@ -8,6 +8,8 @@ public class Group implements SysEntry {
 
     private String groupID;
     private List<SysEntry> sysEntries = new ArrayList<>();
+    // Assignment 3
+    private Long creationTime;
 
     @Override
     public String getID() {
@@ -31,6 +33,16 @@ public class Group implements SysEntry {
         for (SysEntry entry : getSysEntries()) {
             entry.accept(visitor);
         }
+    }
+
+    @Override
+    public Long getCreationTime() {
+        return this.creationTime;
+    }
+
+    @Override
+    public void setCreationTime() {
+        this.creationTime = System.currentTimeMillis();
     }
 
     public List<SysEntry> getSysEntries() {
@@ -71,6 +83,14 @@ public class Group implements SysEntry {
                     }
                 }
             }
+        }
+        return false;
+    }
+
+    // check if space is contained in the input ID
+    public boolean containsSpace(String name) {
+        if (name.contains(" ")) {
+                return true;
         }
         return false;
     }
