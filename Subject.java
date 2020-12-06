@@ -16,9 +16,9 @@ public abstract class Subject {
         observers.remove(observer);
     }
 
-    public void notifyObservers(String tweet) {     // User
+    public void notifyObservers(String tweet, Long time) {     // User
         for(Observer observer : observers) {
-            observer.update(this, tweet);
+            observer.update(this, tweet, time);
         }
     }
 
