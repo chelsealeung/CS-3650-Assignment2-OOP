@@ -12,7 +12,7 @@ public class Main extends Application {
         AdminWindow adminWindow = AdminWindow.getInstance();    // main UI, entrance
         SplitPane splitPane = adminWindow.getAdminWindow();
 
-        Scene scene = new Scene(splitPane,750,500);
+        Scene scene = new Scene(splitPane,550,400);
         primaryStage.setTitle("Mini Twitter");
         primaryStage.setScene(scene);
         primaryStage.show();
