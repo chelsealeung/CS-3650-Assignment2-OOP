@@ -11,4 +11,8 @@ public interface SysEntry {
 
     public void accept(SysEntryVisitor visitor);
 
+    public Long getCreationTime();
+
+    public void setCreationTime();
+
 }
